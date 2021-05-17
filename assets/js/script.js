@@ -136,18 +136,7 @@ $(".card .list-group").sortable({
   scroll: false,
   tolerance: "pointer",
   helper: "clone",
-  /*activate: function(event) {
-    console.log("activate",this);
-  },
-  deactivate: function(event) {
-    console.log("deactivate",this);
-  },
-  over: function(event) {
-    console.log("over",event.target);
-  },
-  out: function(event) {
-    console.log("out",event.target);
-  },*/
+
   update: function(event) {
     var tempArr = [];
     $(this).children().each(function() {
@@ -175,7 +164,14 @@ $(".card .list-group").sortable({
     console.log(tempArr);
   }
 });
-
+//TRASH DROPPABLE CODE
+$("#trash").droppable({
+  accept: ".card .list-group-item",
+  tolerance: "touch",
+  drop: function(event, ui) {
+    ui.draggable.remove();
+  }
+});
 // modal was triggered
 $("#task-form-modal").on("show.bs.modal", function() {
   // clear values
