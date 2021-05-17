@@ -1,5 +1,20 @@
 var tasks = {};
-
+//AUDIT TASK FUNCTION
+var auditTask = function(taskEl) {
+  //get date from task element
+  var date = $(taskEl).find("span").text().trim();
+  //convert to moment object at 5:00pm
+  var time = moment(date,"L").set("hour",17);
+  //remove any old calsses from elements
+  $(taskEl).removeClass("list-group-item-warning list-group-item-danger");
+  //apply new class if near or over due date
+  if (moment().isAfter(time)) {
+    $(taskEl).addClass("list-group-item-danger")
+  }
+  else if (Math.abs(moment().diff(time, "days")) <=2) {
+    $(taskEl).addClass("list-group-item-warning")
+  }
+};
 var createTask = function(taskText, taskDate, taskList) {
   // create elements that make up a task item
   var taskLi = $("<li>").addClass("list-group-item");
@@ -13,9 +28,10 @@ var createTask = function(taskText, taskDate, taskList) {
   // append span and p element to parent li
   taskLi.append(taskSpan, taskP);
 
-
+  auditTask(taskLi);
   // append to ul list on the page
   $("#list-" + taskList).append(taskLi);
+
 };
 
 var loadTasks = function() {
@@ -100,11 +116,19 @@ $(".list-group").on("click", "span", function() {
     .val(date);
   //replace p with textarea
   $(this).replaceWith(dateInput);
+  //Datepicker
+  dateInput.datepicker({
+    minDate: 1,
+    onClose: function() {
+      // when calendar is closed, force a "change" event
+      $(this).trigger("change");
+    }
+  });
   dateInput.trigger("focus");
 });
 
 //edit date when clicked outside
-$(".list-group").on("blur", "input[type='text']", function() {
+$(".list-group").on("change", "input[type='text']", function() {
   //get the current text
   var date = $(this)
   .val()
@@ -128,6 +152,8 @@ $(".list-group").on("blur", "input[type='text']", function() {
 
   //replace text area p
   $(this).replaceWith(taskSpan);
+  //pass li element to audit task
+  auditTask($(taskSpan).closest(".list-group-item"));
 });
 
 //JQUERY UI - MAKE LIST DRAGGABLE AND SORTABLE
@@ -171,6 +197,10 @@ $("#trash").droppable({
   drop: function(event, ui) {
     ui.draggable.remove();
   }
+});
+//MODAL DATE PICKER
+$("#modalDueDate").datepicker({
+  minDate:1
 });
 // modal was triggered
 $("#task-form-modal").on("show.bs.modal", function() {
